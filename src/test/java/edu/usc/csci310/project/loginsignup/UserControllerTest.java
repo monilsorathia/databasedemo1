@@ -3,7 +3,7 @@ package edu.usc.csci310.project.loginsignup;
 
 import edu.usc.csci310.project.models.User;
 import edu.usc.csci310.project.repositories.UserRepository;
-import edu.usc.csci310.project.loginsignup.UserController;
+import static edu.usc.csci310.project.Encryption.encrypt;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.*;
@@ -113,7 +113,7 @@ public class UserControllerTest {
 
         String en_password = "";
         String password = "temp";
-        en_password = UserController.encrypt(password, 5);
+        en_password = encrypt(password, 5);
 
         when(mockuser.getPassword()).thenReturn(en_password);
         String expected = "{\"success\": \"" + "true" + "\"}";

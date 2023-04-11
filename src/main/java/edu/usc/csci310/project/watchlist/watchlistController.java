@@ -5,7 +5,8 @@ import edu.usc.csci310.project.loginsignup.UserController;
 import edu.usc.csci310.project.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import static edu.usc.csci310.project.Encryption.decrypt;
+import static edu.usc.csci310.project.Encryption.encrypt;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -16,32 +17,7 @@ public class watchlistController {
     @Autowired
     public UserRepository userRepository;
 
-    public static String encrypt(String plaintext, int shift) {
-        StringBuilder ciphertext = new StringBuilder();
-        for (int i = 0; i < plaintext.length(); i++) {
-            char c = plaintext.charAt(i);
-            if (Character.isLetter(c)) {
-                if (Character.isUpperCase(c)) {
-                    ciphertext.append((char) ('A' + (c - 'A' + shift) % 26));
-                } else {
-                    ciphertext.append((char) ('a' + (c - 'a' + shift) % 26));
-                }
-            } else if (Character.isDigit(c))
-            {
-                ciphertext.append((char) ('0' + (c - '0' + shift) % 10));
-            } else
-            {
-                ciphertext.append(c);
-            }
-        }
-        return ciphertext.toString();
-    }
-
-    public static String decrypt(String ciphertext) {
-        return encrypt(ciphertext, 21);
-    }
-
-    @PostMapping("/createwatchlist")
+    @GetMapping("/createwatchlist")
     public String createList(@RequestParam String watchlistname, @RequestParam String email) {
         //encrypting
         UserController userController = new UserController();
@@ -54,6 +30,7 @@ public class watchlistController {
 
             Hashtable<String, ArrayList<String>> alllists = user.getAllWatchlists();
             ArrayList<String> specificlist = alllists.get(en_name);
+            System.out.println(en_name);
             if (specificlist == null) {
                 user.createnewList(en_name);
                 String responseString = "{\"success\": \"" + "true" + "\"," +
@@ -70,18 +47,17 @@ public class watchlistController {
         return responseString;
     }
 
-    @PostMapping("/retrievelist")
+    @GetMapping("/retrievelist")
     public String retrieveList(@RequestParam String email, @RequestParam String watchlistname)
     {
         UserController userController = new UserController();
-        userController.signUp("john", "dummywatchlist@usc.edu", "1234", "1234");
+        userController.signUp("john", "dummywatchlist@usc.edu", "12345678", "12345678");
         //userController.userRepository = userRepository;
         String en_email = encrypt(email, 5);
         User user = userRepository.findByEmail(en_email);
         if(user != null)
         {
             String en_name = encrypt(watchlistname, 5);
-
             Hashtable<String, ArrayList<String>> alllists = user.getAllWatchlists();
             ArrayList<String> specificlist = alllists.get(en_name);
             if(specificlist == null)
@@ -106,7 +82,7 @@ public class watchlistController {
     }
 
 
-    @PostMapping("/addtolist")
+    @GetMapping("/addtolist")
     public String addtolist(@RequestParam String email, @RequestParam String watchlistname, @RequestParam String id)
     {
         UserController userController = new UserController();

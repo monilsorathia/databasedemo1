@@ -1,12 +1,13 @@
 package edu.usc.csci310.project.watchlist;
 
 import edu.usc.csci310.project.models.User;
-import org.junit.Test;
+import edu.usc.csci310.project.repositories.UserRepository;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static edu.usc.csci310.project.watchlist.watchlistController.decrypt;
-import static edu.usc.csci310.project.watchlist.watchlistController.encrypt;
+import static edu.usc.csci310.project.Encryption.decrypt;
+import static edu.usc.csci310.project.Encryption.encrypt;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -17,12 +18,11 @@ public class watchlistControllerTest {
     public void createListFirst()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
 
-        when(mockrepo.get(anyString())).thenReturn(null);
+        when(mockrepo.findByEmail(anyString())).thenReturn(null);
         String answer = "{\"success\": \"" + "false" + "\"," +
-                "\"alreadyexists\": \"" + "false" + "\"," +
                 "\"failure\": \"" + "true" + "\"}";
         assertEquals(answer, wc.createList("temp", "temp"));
     }
@@ -31,31 +31,35 @@ public class watchlistControllerTest {
     public void createListSecond()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
-        User mockuser = mock(User.class);
-        ArrayList<String> templist = new ArrayList<String>();
-        templist.add("random");
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
-        when(mockuser.getWatchList(anyString())).thenReturn(templist);
+        User mockuser = mock(User.class);
+
+        ArrayList<String> templist = new ArrayList<String>();
+        templist.add(encrypt("random", 5));
+
+        Hashtable<String, ArrayList<String>> temptable = new Hashtable<String, ArrayList<String>>();
+        temptable.put(encrypt("random", 5), templist);
+
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
+        when(mockuser.getAllWatchlists()).thenReturn(temptable);
 
         String expected = "{\"success\": \"" + "false" + "\"," +
-                "\"alreadyexists\": \"" + "true" + "\"," +
                 "\"failure\": \"" + "true" + "\"}";
-        assertEquals(expected, wc.createList("temp", "temp"));
+        assertEquals(expected, wc.createList("random", "temp"));
     }
 
     @Test
     public void createListThird()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
-        when(mockuser.getWatchList(anyString())).thenReturn(null);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
+        when(mockuser.getAllWatchlists()).thenReturn(null);
 
         doNothing().when(mockuser).createnewList(anyString());
         when(mockuser.addtowatchlist(anyString(), anyString())).thenReturn(true);
@@ -69,10 +73,10 @@ public class watchlistControllerTest {
     public void addtoListFirst()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
 
-        when(mockrepo.get(anyString())).thenReturn(null);
+        when(mockrepo.findByEmail(anyString())).thenReturn(null);
 
         String expected = "{\"success\": \"" + "false" + "\"," +
                 "\"failure\": \"" + "true" + "\"}";
@@ -83,11 +87,11 @@ public class watchlistControllerTest {
     public void addtoListSecond()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(null);
 
         String expected = "{\"success\": \"" + "false" + "\"," +
@@ -99,12 +103,12 @@ public class watchlistControllerTest {
     public void addtoListThird()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
         Hashtable<String, ArrayList<String>> mockhashmap = mock(Hashtable.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(mockhashmap);
         when(mockhashmap.get(anyString())).thenReturn(new ArrayList<String>());
         when(mockuser.addtowatchlist(anyString(), anyString())).thenReturn(true);
@@ -118,12 +122,12 @@ public class watchlistControllerTest {
     public void addtoListFourth()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
         Hashtable<String, ArrayList<String>> mockhashmap = mock(Hashtable.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(mockhashmap);
         when(mockhashmap.get(anyString())).thenReturn(new ArrayList<String>());
         when(mockuser.addtowatchlist(anyString(), anyString())).thenReturn(false);
@@ -137,12 +141,12 @@ public class watchlistControllerTest {
     public void addtoListFifth()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
         Hashtable<String, ArrayList<String>> mockhashmap = mock(Hashtable.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(mockhashmap);
         when(mockhashmap.get(anyString())).thenReturn(null);
 
@@ -155,10 +159,10 @@ public class watchlistControllerTest {
     public void showallListsFirst()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
 
-        when(mockrepo.get(anyString())).thenReturn(null);
+        when(mockrepo.findByEmail(anyString())).thenReturn(null);
         String expected = "[]";
         assertEquals(expected, wc.retrieveList("temp", "temp"));
     }
@@ -167,11 +171,11 @@ public class watchlistControllerTest {
     public void showallListsSecond()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(null);
 
         String expected = "[]";
@@ -182,12 +186,12 @@ public class watchlistControllerTest {
     public void showallListsThird()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
         Hashtable<String, ArrayList<String>> mockhashmap = mock(Hashtable.class);
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(mockhashmap);
         when(mockhashmap.isEmpty()).thenReturn(true);
 
@@ -199,15 +203,15 @@ public class watchlistControllerTest {
     public void showallListsFourth()
     {
         watchlistController wc = new watchlistController();
-        Hashtable<String, User> mockrepo = mock(Hashtable.class);
-        wc.userdatabase = mockrepo;
+        UserRepository mockrepo = mock(UserRepository.class);
+        wc.userRepository = mockrepo;
         User mockuser = mock(User.class);
         Hashtable<String, ArrayList<String>> mockhashmap = mock(Hashtable.class);
         Set<String> tempset = new HashSet<String>();
         tempset.add("first");
         tempset.add("second");
 
-        when(mockrepo.get(anyString())).thenReturn(mockuser);
+        when(mockrepo.findByEmail(anyString())).thenReturn(mockuser);
         when(mockuser.getAllWatchlists()).thenReturn(mockhashmap);
         when(mockhashmap.isEmpty()).thenReturn(false);
         when(mockhashmap.keySet()).thenReturn(tempset);
@@ -217,54 +221,5 @@ public class watchlistControllerTest {
 
         String expected = "[ " + decryptfirst + ", " + decrppysecond + "]";
         assertEquals(expected, wc.retrieveList("temp", "temp"));
-    }
-
-    @Test
-    public void encryptFirst()
-    {
-        String input = "temp";
-        String expected = "yjru";
-        assertEquals(expected, encrypt(input, 5));
-    }
-
-    @Test
-    public void encryptSecond()
-    {
-        String input = "TEMP";
-        String expected = "YJRU";
-        assertEquals(expected, encrypt(input, 5));
-    }
-
-    @Test
-    public void encryptThird()
-    {
-        String input = "123";
-        String expected = "678";
-        assertEquals(expected, encrypt(input, 5));
-    }
-
-    @Test
-    public void encryptFourth()
-    {
-        String input = "@!!";
-        String expected = "@!!";
-        assertEquals(expected, encrypt(input, 5));
-    }
-
-    @Test
-    public void encryptFifth()
-    {
-        String input = "";
-        String expected = "";
-        assertEquals(expected, encrypt(input, 5));
-    }
-
-
-    @Test
-    public void decryptFirst()
-    {
-        String input  = "yjru";
-        String expected = "temp";
-        assertEquals(expected, decrypt(input));
     }*/
 }
