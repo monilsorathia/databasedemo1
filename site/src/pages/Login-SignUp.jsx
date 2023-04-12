@@ -110,6 +110,13 @@ function LoginSignup() {
 
   const toggleForm = () => {
     setShowLogin(!showLogin);
+    SignupsetSuccess(false);
+    LoginsetSuccess(false);
+    PasswordmatchError(false);
+    PasswordLengthError(false);
+    UserexistsError(false);
+    LoginuserexistsError(false);
+    LoginpasswordmatchError(false);
   };
 
   return (
