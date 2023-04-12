@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "../styles/index.css";
 
 const Movie = ({ title, overview, id }) => {
+    const location = useLocation();
     const [AddListResponse, AddListSuccess] = useState(false);
     const [RetrieveListResponse, RetrieveListSuccess] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
@@ -88,7 +89,7 @@ const Movie = ({ title, overview, id }) => {
     const handleAddToWatchlist = async (watchlistName) => {
       try {
         // make POST request to backend API with movie id and watchlist name
-        const email = "dummywatchlist@usc.edu";
+        const email = location.state.prop1;
         const response = await axios.post(`http://localhost:8080/watchlistController/addtolist?email=${email}&watchlistname=${watchlistName}&id=${id}`);
         console.log(response.data); // print response from backend
         if(response.data.success == "true")
@@ -134,9 +135,9 @@ const Movie = ({ title, overview, id }) => {
                         e.stopPropagation();
                         toggleWatchlist();
                         //contact back-end and retrieve watchlist names
-                        const email = "dummywatchlist@usc.edu";
+                        const email = location.state.prop1;
+                        const watchlistName = "";
                         axios.get("http://localhost:8080/watchlistController/retrievelist?email=${email}&watchlistname={watchlistName}").then((response) => {
-
                           const watchlists = JSON.parse(response.data);
                           // do something with the retrieved watchlists
                           console.log(watchlists);
@@ -193,6 +194,7 @@ const Movie = ({ title, overview, id }) => {
 };
 
 function MovieSearch() {
+    const location = useLocation();
     const [searchType, setSearchType] = useState("keyword");
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
@@ -347,7 +349,7 @@ function MovieSearch() {
                 </div>
             </form>
             {results.length === 0 ? (
-                <div className="no-results">No results found.</div>
+                <div className="no-results">Email: {location.state.prop1}</div>
             ) : (
                 //INSERT MOVIE CALL HERE
                 <div className="movie-list">

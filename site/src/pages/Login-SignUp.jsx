@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import "../styles/index.css";
+import MovieSearch from "./MovieSearch";
 
 //Two functions- One for signup and one for login
 //Called by code "on click" or "on submit" (value of on click or on submit is specified by the function)
@@ -11,6 +13,8 @@ import "../styles/index.css";
 //According to the signUpResponse, create a function that displays a popup such as the one on likes 52 on github
 
 function LoginSignup() {
+  const navigate = useNavigate();
+
   const [SignupsuccessResponse, SignupsetSuccess] = useState(false);
   const [LoginsuccessResponse, LoginsetSuccess] = useState(false);
 
@@ -45,6 +49,7 @@ function LoginSignup() {
           if(signUpResponse.data.success == "true")
           {
             SignupsetSuccess(true);
+            setEmail(email);
           }
           else
           {
@@ -82,6 +87,9 @@ function LoginSignup() {
             if(loginResponse.data.success == "true")
              {
                  LoginsetSuccess(true);
+                 setEmail(email);
+                 setPassword(password);
+                 navigate('/MovieSearch', { state: { prop1: email } });
              }
              else
             {
