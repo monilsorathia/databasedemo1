@@ -30,6 +30,7 @@ public class CompareListController
             if (alllists == null)
             {
                 String responseString = "[]";
+                System.out.println("ANSWER ISSSSSSSSS" + responseString);
                 return responseString;
             }
             else

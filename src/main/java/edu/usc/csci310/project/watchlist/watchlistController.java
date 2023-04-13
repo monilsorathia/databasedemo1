@@ -17,7 +17,7 @@ public class watchlistController {
     @Autowired
     public UserRepository userRepository;
 
-    @GetMapping("/createwatchlist")
+    @PostMapping("/createwatchlist")
     public String createList(@RequestParam String watchlistname, @RequestParam String email) {
         //encrypting
         UserController userController = new UserController();
@@ -47,42 +47,8 @@ public class watchlistController {
         return responseString;
     }
 
-    @GetMapping("/retrievelist")
-    public String retrieveList(@RequestParam String email, @RequestParam String watchlistname)
-    {
-        UserController userController = new UserController();
-        userController.signUp("john", "dummywatchlist@usc.edu", "12345678", "12345678");
-        //userController.userRepository = userRepository;
-        String en_email = encrypt(email, 5);
-        User user = userRepository.findByEmail(en_email);
-        if(user != null)
-        {
-            String en_name = encrypt(watchlistname, 5);
-            Hashtable<String, ArrayList<String>> alllists = user.getAllWatchlists();
-            ArrayList<String> specificlist = alllists.get(en_name);
-            if(specificlist == null)
-            {
-                return "";
-            }
-            else
-            {
-                String id = "";
-                String responseString = "[ ";
-                for(int i = 0; i < specificlist.size(); i++)
-                {
-                    String encrypted_id = specificlist.get(i);
-                    responseString = responseString + decrypt(encrypted_id) + ", ";
-                }
-                responseString = responseString + "]";
-                return responseString;
-            }
 
-        }
-        return "";
-    }
-
-
-    @GetMapping("/addtolist")
+    @PostMapping("/addtolist")
     public String addtolist(@RequestParam String email, @RequestParam String watchlistname, @RequestParam String id)
     {
         UserController userController = new UserController();
@@ -118,3 +84,28 @@ public class watchlistController {
         return responseString;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

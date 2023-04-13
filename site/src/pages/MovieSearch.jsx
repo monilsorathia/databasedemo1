@@ -6,6 +6,7 @@ import "../styles/index.css";
 const Movie = ({ title, overview, id }) => {
     const location = useLocation();
     const [AddListResponse, AddListSuccess] = useState(false);
+    const [AddListErrorResponse, AddListError] = useState(false);
     const [RetrieveListResponse, RetrieveListSuccess] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [extraDetails, setExtraDetails] = useState([]);
@@ -91,14 +92,14 @@ const Movie = ({ title, overview, id }) => {
         // make POST request to backend API with movie id and watchlist name
         const email = location.state.prop1;
         const response = await axios.post(`http://localhost:8080/watchlistController/addtolist?email=${email}&watchlistname=${watchlistName}&id=${id}`);
-        console.log(response.data); // print response from backend
+        console.log("ERROR MESSAGE OR SUCCESS MESSAGE" + response.data); // print response from backend
         if(response.data.success == "true")
         {
           AddListSuccess(true);
         }
-        else if(response.data.failure == "false")
+        else if(response.data.failure == "true")
         {
-           AddListSuccess(true);
+           AddListError(true);
         }
       } catch (error) {
         console.log(error); // handle error
@@ -137,10 +138,15 @@ const Movie = ({ title, overview, id }) => {
                         //contact back-end and retrieve watchlist names
                         const email = location.state.prop1;
                         const watchlistName = "";
-                        axios.get("http://localhost:8080/watchlistController/retrievelist?email=${email}&watchlistname={watchlistName}").then((response) => {
-                          const watchlists = JSON.parse(response.data);
+                        axios.post("http://localhost:8080/comparelistController/getlistnames?email="  + email).then((response) => {
+                        console.log("DATA IS " + response.data);
+                        if(!(response.stringify.equals("[]")))
+                        {    console.log("hello");
+                            const watchlists = JSON.parse(response.data);
+                            console.log("watchlists are = " + watchlists);
                           // do something with the retrieved watchlists
-                          console.log(watchlists);
+                            console.log(watchlists);
+                        }
                         }).catch((error) => {
                           console.log(error);
                         });
@@ -153,7 +159,7 @@ const Movie = ({ title, overview, id }) => {
                 <div>
                     <p>Add to existing watchlist:</p>
                     {AddListResponse && <p>Added Successfully!</p>}
-                    {!AddListResponse && <p>Added Failed!</p>}
+                    {AddListErrorResponse && <p>Added Failed!</p>}
                     {watchlists.map((watchlist, index) => (
                         <button key={index} onClick={() => handleAddToWatchlist(watchlist.name)}>
                             {watchlist.name}

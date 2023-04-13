@@ -68,6 +68,8 @@ public class User {
 
     public Hashtable<String, ArrayList<String>> getAllWatchlists()
     {
+        if(watchlists.isEmpty())
+            return null;
         return watchlists;
     }
 
